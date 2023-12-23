@@ -4,14 +4,16 @@ module.exports = {
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/layout/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
+      colors: require("./src/themes/colors"),
+      fontSize: require("./src/themes/fontSize"),
+      spacing: require("./src/themes/spacing"),
+      borderRadius: require("./src/themes/spacing"),
+      lineHeight: require("./src/themes/spacing"),
+      borderWidth: require("./src/themes/spacing"),
     },
   },
   plugins: [],
