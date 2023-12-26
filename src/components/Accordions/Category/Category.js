@@ -12,6 +12,7 @@ const Category = () => {
             <input 
                 type='text'
                 placeholder='აირჩიეთ კატეგორია' 
+                className='outline-none'
             />
             <button onClick={openHandler}><img src='/svg/arrow-down.svg'/></button>
         </div>
