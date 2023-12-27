@@ -1,29 +1,11 @@
-import { AppContext } from '@/context/AppContext'
 import { useContext, useState } from 'react'
+import { AppContext } from '@/context/AppContext'
+import { fetchData } from '@/utils/fetchData'
 import Button from '@/components/Inputs/Button/Button'
-import axios from 'axios'
 
-const MAIL = 'saba'
 
-const fetchData = async (endpoint, options) => {
-  const res = await fetch(
-    `https://api.blog.redberryinternship.ge/api/${endpoint}`,
-    {
-      ...options,
-    }
-  )
-  if (!res.ok) {
-    if (res.body) {
-      const error = await res.json()
-      throw new Error(JSON.stringify(error))
-    }
-    throw new Error('General Error')
-  }
-
-  return res.status == 204 ? { succes: true } : res.json()
-}
 const Login = () => {
-  const { loginHandler, isLoggedIn, isLoggedInHandler, setTokenHandler } =
+  const { loginHandler, isLoggedIn, isLoggedInHandler, setTokenHandler, token} =
     useContext(AppContext)
 
   const [mail, setMail] = useState('')
@@ -40,14 +22,6 @@ const Login = () => {
       await fetchData('login', {
         method: 'post',
         body: JSON.stringify(payload),
-        cache: 'no-store',
-        headers: {
-          'Content-Type': 'application/json',
-          accept: 'application/json',
-        },
-      })
-      const { token } = await fetchData('token', {
-        method: 'get',
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',

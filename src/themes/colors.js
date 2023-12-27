@@ -10,6 +10,7 @@ const colors = {
     red: "#EA1919",
     green: "#14D81C",
     dark: "#1A1A1F",
+    dark01: "#404049",
 };
 
 module.exports = colors;
