@@ -1,3 +1,4 @@
+
 export const fetchData = async (endpoint, options) => {
   const res = await fetch(
     `https://api.blog.redberryinternship.ge/api/${endpoint}`,

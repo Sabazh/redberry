@@ -8,7 +8,7 @@ const Button = (props) => {
     const { children, className, color, ...rest } = props; 
 
   return (
-    <button {...rest} className={`${colors[color]} px-2-0 py-1-0 text-1-4 font-fR rounded-0-8 outline-none ${className}`}>
+    <button {...rest} className={`${colors[color]}  px-2-0 py-1-0 text-1-4 font-fR rounded-0-8 outline-none ${className}`}>
         {children}
     </button>
   )

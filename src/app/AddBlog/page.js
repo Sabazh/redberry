@@ -2,16 +2,16 @@
 
 import { useContext, useState } from 'react'
 import { AppContext } from '@/context/AppContext'
+import axios from 'axios'
 import Link from 'next/link'
-import { fetchData } from '@/utils/fetchData'
+import dayjs from 'dayjs'
 import Category from '@/components/Accordions/Category/Category'
 import Button from '@/components/Inputs/Button/Button'
 import Input from '@/components/Inputs/Input/Input'
 import Calendar from '@/components/Accordions/Date/Date'
 
-
 const AddBlog = () => {
-  const { token } = useContext(AppContext)
+  const { token, categories } = useContext(AppContext)
 
   const [inputValue, setInputValue] = useState({
     author: '',
@@ -29,16 +29,16 @@ const AddBlog = () => {
       isGeorgianAlphabet: '',
     },
     title: {
-        enoughSymbols: '',
+      enoughSymbols: '',
     },
     description: {
-        enoughSymbols: '',
+      enoughSymbols: '',
     },
     email: {
-        isEmailValid: '',
-    }
+      isEmailValid: '',
+    },
   })
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(false)
 
   const validateInput = (key) => {
     const trimmedValue = inputValue[key].trim()
@@ -58,7 +58,15 @@ const AddBlog = () => {
       },
     }))
   }
-
+  const dateUpdateHandler = (val) => {
+    setInputValue((prev) => ({ ...prev, date: val }))
+  }
+  const fileUpdateHandler = (e) => {
+    setInputValue((prev) => ({ ...prev, file: e.target.files[0] }))
+  }
+  const categoryUpdateHandler = (value) => {
+    setInputValue((prev) => ({ ...prev, categoryId: value }))
+  }
   const onChangeHandler = (e) => {
     setInputValue((prevInputValue) => ({
       ...prevInputValue,
@@ -78,65 +86,78 @@ const AddBlog = () => {
   }
 
   const handleForm = async (e) => {
+    console.log('save')
     e.preventDefault()
-    if (!inputValue.file && 
-        !inputValue.author && 
-        !inputValue.title && 
-        !inputValue.description &&
-        !inputValue.date &&
-        !inputValue.categoryId &&
-        !inputValue.email
+    if (
+      !inputValue.file &&
+      !inputValue.author &&
+      !inputValue.title &&
+      !inputValue.description &&
+      !inputValue.date &&
+      !inputValue.categoryId &&
+      !inputValue.email
     ) {
-        return false
+      return false
     }
-    const payload = {
-      title: inputValue.title,
-      description: inputValue.description,
-      image: inputValue.file,
-      author: inputValue.author,
-      publish_date: inputValue.date,
-      categories: inputValue.categoryId,
-      email: inputValue.email,
-    }
+    const formData = new FormData()
+    formData.append('title', inputValue.title)
+    formData.append('description', inputValue.description)
+    formData.append('image', inputValue.file)
+    formData.append('author', inputValue.author)
+    formData.append('publish_date', dayjs(inputValue.date).format('YYYY/MM/DD'))
+    formData.append('categories', JSON.stringify([inputValue.categoryId]))
+    formData.append('email', inputValue.email)
+
     try {
-      await fetchData('blogs', {
-        method: 'post',
-        body: JSON.stringify(payload),
-        cache: 'no-store',
-        headers: {
-          'Content-Type': 'application/json',
-          accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        setSuccess(true)
+      await axios.post(
+        'https://api.blog.redberryinternship.ge/api/blogs',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      setSuccess(true)
     } catch (e) {
+      console.log('error', e)
       // handle errors
     }
   }
 
   return (
     <div>
-      {success && 
+      {success && (
         <div className="flex w-full h-full fixed top-0 left-0 justify-center items-center bg-dark/[0.24] z-2">
-            <div className="max-w-[480px] w-full bg-white rounded-1-2 px-2-4 py-4-0 relative">
-                <button className="absolute top-2-0 right-2-0" onClick={() => loginHandler(false)}>
-                    <img src="/svg/X.svg" />
-                </button>
-                <div className="flex flex-col gap-4-8">
-                    <div className="flex flex-col items-center justify-center gap-1-6 px-7-4">
-                        <img src="/svg/tick-circle.svg" className="w-6-4" />
-                        <p className="font-fB text-2-0 text-dark">
-                            ჩანაწი წარმატებით დაემატა
-                        </p>
-                    </div>
-                    <Button color="blue" onClick={() => loginHandler(false)}>
-                        მთავარ გვერდზე დაბრუნება
-                    </Button>
-                </div>
+          <div className="max-w-[480px] w-full bg-white rounded-1-2 px-2-4 py-4-0 relative">
+            <button
+              className="absolute top-2-0 right-2-0"
+              onClick={() => {
+                setSuccess(false)
+              }}
+            >
+              <img src="/svg/X.svg" />
+            </button>
+            <div className="flex flex-col gap-4-8">
+              <div className="flex flex-col items-center justify-center gap-1-6 px-7-4">
+                <img src="/svg/tick-circle.svg" className="w-6-4" />
+                <p className="font-fB text-2-0 text-dark">
+                  ჩანაწი წარმატებით დაემატა
+                </p>
+              </div>
+              <Button
+                color="blue"
+                onClick={() => {
+                  setSuccess(false)
+                }}
+              >
+                მთავარ გვერდზე დაბრუნება
+              </Button>
             </div>
-        </div> 
-      }
+          </div>
+        </div>
+      )}
       <div className="flex justify-center items-center py-2-8 bg-white border-b-0-1 border-grey01">
         <Link href="/">
           <img src="/images/LOGO.png" />
@@ -157,8 +178,16 @@ const AddBlog = () => {
                 <label className="font-fN">ატვირთეთ ფოტო</label>
                 <div className="flex flex-col gap-2-4 items-center py-4-8 rounded-1-2 border-dashed border-0-1 border-grey bg-white04 relative">
                   <img src="/images/folder-add.png" />
-                  <p>ჩააგდეთ ფაილი აქ ან{' '}<span className='underline font-fB'>აირჩიეთ ფაილი</span></p>
-                  <input name='file' type="file" className="absolute inset-0 opacity-0" />
+                  <p>
+                    ჩააგდეთ ფაილი აქ ან{' '}
+                    <span className="underline font-fB">აირჩიეთ ფაილი</span>
+                  </p>
+                  <input
+                    name="file"
+                    type="file"
+                    className="absolute inset-0 opacity-0"
+                    onChange={fileUpdateHandler}
+                  />
                 </div>
               </div>
               <div className="flex gap-2-4">
@@ -203,12 +232,12 @@ const AddBlog = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-0-8 w-full">
-                <textarea 
-                    name='description'
-                    placeholder='შეიყვნეთ აღწერა' 
-                    value={inputValue.description}
-                    onChange={onChangeHandler}
-                    className='px-1-6 py-1-2 text-1-4 rounded-1-2 border-0-1 border-grey01 bg-white03 outline-none min-h-[124px]'
+                <textarea
+                  name="description"
+                  placeholder="შეიყვნეთ აღწერა"
+                  value={inputValue.description}
+                  onChange={onChangeHandler}
+                  className="px-1-6 py-1-2 text-1-4 rounded-1-2 border-0-1 border-grey01 bg-white03 outline-none min-h-[124px]"
                 />
                 <p
                   style={{ color: errorMessage.description.enoughSymbols }}
@@ -218,16 +247,15 @@ const AddBlog = () => {
                 </p>
               </div>
               <div className="flex gap-2-4">
-                {/* <div className="flex flex-col gap-0-8 w-full">
-                  <label className="font-fN">გამოქვეყნების თარიღი *</label>
-                  <input
-                    type="date"
-                    name='date'
-                    className="px-1-6 py-1-2 rounded-1-2 border-0-1 border-grey01 bg-white03 outline-none"
-                  />
-                </div> */}
-                <Calendar />
-                <Category />
+                <Calendar
+                  value={inputValue.date}
+                  onChange={dateUpdateHandler}
+                />
+                <Category
+                  onChange={categoryUpdateHandler}
+                  categories={categories}
+                  value={inputValue.categoryId}
+                />
               </div>
               <div className="flex flex-col gap-0-8 w-48-percent">
                 <Input
@@ -238,14 +266,14 @@ const AddBlog = () => {
                   value={inputValue.email}
                   onChange={onChangeHandler}
                 />
-                {inputValue.email &&                 
-                    <div className="flex items-start gap-0-8">
-                        <img src="/svg/red-!.svg" />              
-                        <span className="font-fR text-1-2 text-red">
-                            მეილი უნდა მთავრდებოდეს @redberry.ge-ით
-                        </span>
-                    </div>  
-                }
+                {inputValue.email && (
+                  <div className="flex items-start gap-0-8">
+                    <img src="/svg/red-!.svg" />
+                    <span className="font-fR text-1-2 text-red">
+                      მეილი უნდა მთავრდებოდეს @redberry.ge-ით
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex justify-end items-end">

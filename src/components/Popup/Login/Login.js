@@ -3,22 +3,30 @@ import { AppContext } from '@/context/AppContext'
 import { fetchData } from '@/utils/fetchData'
 import Button from '@/components/Inputs/Button/Button'
 
-
 const Login = () => {
-  const { loginHandler, isLoggedIn, isLoggedInHandler, setTokenHandler, token} =
-    useContext(AppContext)
+  const {
+    loginHandler,
+    isLoggedIn,
+    isLoggedInHandler,
+    setTokenHandler,
+    token,
+    setCategoriesHandler,
+    setBlogsHandler,
+  } = useContext(AppContext)
 
   const [mail, setMail] = useState('')
   const [error, setError] = useState(false)
-
+  const [loading, setLoading] = useState(false)
   const onChange = (e) => {
     setMail(e.target.value)
   }
 
   const handleLogin = async (e) => {
     e.preventDefault()
+    if (loading) return false
     const payload = { email: mail }
     try {
+      setLoading(true)
       await fetchData('login', {
         method: 'post',
         body: JSON.stringify(payload),
@@ -28,20 +36,45 @@ const Login = () => {
           accept: 'application/json',
         },
       })
-      // const blogs = await fetchData('blogs', {
-      //   method: 'get',
-      //   cache: 'no-store',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     accept: 'application/json',
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // })
-      // save token in App context
+      const { token } = await fetchData('token', {
+        method: 'get',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+        },
+      })
+      const handler = () =>
+        Promise.all([
+          fetchData('categories', {
+            method: 'get',
+            cache: 'no-store',
+            headers: {
+              'Content-Type': 'application/json',
+              accept: 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          fetchData('blogs', {
+            method: 'get',
+            cache: 'no-store',
+            headers: {
+              'Content-Type': 'application/json',
+              accept: 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        ])
+      const [categories, blogs] = await handler()
+      setCategoriesHandler(categories.data)
+      setBlogsHandler(blogs.data)
       setTokenHandler(token)
       isLoggedInHandler()
     } catch (e) {
+      setError(JSON.parse(e.message))
       console.log('error', JSON.parse(e.message))
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -90,7 +123,9 @@ const Login = () => {
                   </div>
                 )}
               </div>
-              <Button color="blue">შესვლა</Button>
+              <Button color="blue" disabled={loading}>
+                შესვლა
+              </Button>
             </form>
           </div>
         )}
