@@ -1,20 +1,22 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AppContext } from '@/context/AppContext'
 import { fetchData } from '@/utils/fetchData'
+import { getCookie } from 'cookies-next'
 import Link from 'next/link'
 import Header from '@/layout/Header/Header'
+import Card from '@/components/Card/Card'
 import CategoriesButton from '@/components/Inputs/CategoriesButton/CategoriesButton'
 import { blue, white } from '@/themes/colors'
-import Card from '@/components/Card/Card'
 
 const DetailPage = ({ params }) => {
-  const { token, blogs } = useContext(AppContext)
+  const { blogs } = useContext(AppContext)
   const [blog, setBlog] = useState(null)
   const [similarBlogs, setSimilarBlogs] = useState(null)
 
   useEffect(() => {
+    const token = getCookie('token')
     if (!token) {
       // redirect;
     }
@@ -40,8 +42,7 @@ const DetailPage = ({ params }) => {
     }
     handler()
   }, [])
-    if (!token) return <p>not authorized</p>
-    if (!blog) return <p>loading...</p>
+  if (!blog) return <p>loading...</p>
 
   return (
     <div>

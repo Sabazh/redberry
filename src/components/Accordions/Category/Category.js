@@ -1,22 +1,7 @@
-import { useContext, useState } from 'react'
-import { AppContext } from '@/context/AppContext'
-import { fetchData } from '@/utils/fetchData'
+import { useState } from 'react'
 
-const Category = ({ value, onChange }) => {
-  const categories = [
-    {
-      id: 1,
-      title: 'მარკეტი',
-      text_color: '#FFFFFF',
-      background_color: '#FFBB2F',
-    },
-    {
-      id: 2,
-      title: 'აპლიკაცია',
-      text_color: '#FFFFFF',
-      background_color: '#1CD67D',
-    },
-  ]
+const Category = ({ value, onChange, categories}) => {
+
   const [open, setOpen] = useState(false)
   const openHandler = () => {
     setOpen(!open)
@@ -28,7 +13,7 @@ const Category = ({ value, onChange }) => {
       <div className="flex flex-col gap-0-8">
         <label className="font-fN">კატეგორია *</label>
         <div className="flex justify-between px-1-6 py-1-2 rounded-1-2 border-0-1 border-grey01 bg-white03 outline-none">
-          <span className=' placeholder:text-grey'>{activeTitle}</span>
+          <span>{activeTitle}</span>
           <button onClick={openHandler} type="button">
             <img src="/svg/arrow-down.svg" />
           </button>
@@ -36,7 +21,7 @@ const Category = ({ value, onChange }) => {
       </div>
       {open && (
         <div className="p-1-6 rounded-1-2 border-0-1 border-grey02 mt-0-4 absolute top-100-percent w-full left-0">
-          <div className="">
+          <div className="flex flex-wrap gap-0-8">
             {categories.map((item) => (
               <button
                 key={item.id}
@@ -44,7 +29,7 @@ const Category = ({ value, onChange }) => {
                 type="button"
                 className={`${
                   item.id === value ? 'bg-slate-500' : ''
-                } block h-4-0`}
+                } block h-4-0 border-0-1 rounded-1-2`}
               >
                 {item.title}
               </button>

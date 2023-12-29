@@ -2,8 +2,9 @@
 
 import { useContext, useState } from 'react'
 import { AppContext } from '@/context/AppContext'
-import axios from 'axios'
+import { getCookie } from 'cookies-next'
 import Link from 'next/link'
+import axios from 'axios'
 import dayjs from 'dayjs'
 import Category from '@/components/Accordions/Category/Category'
 import Button from '@/components/Inputs/Button/Button'
@@ -11,8 +12,9 @@ import Input from '@/components/Inputs/Input/Input'
 import Calendar from '@/components/Accordions/Date/Date'
 
 const AddBlog = () => {
-  const { token, categories } = useContext(AppContext)
-
+  const { categories } = useContext(AppContext)
+  
+  const token = getCookie('token')
   const [inputValue, setInputValue] = useState({
     author: '',
     title: '',
@@ -86,7 +88,6 @@ const AddBlog = () => {
   }
 
   const handleForm = async (e) => {
-    console.log('save')
     e.preventDefault()
     if (
       !inputValue.file &&
@@ -176,19 +177,31 @@ const AddBlog = () => {
             <div className="flex flex-col gap-2-4">
               <div className="flex flex-col font-fR gap-0-8">
                 <label className="font-fN">ატვირთეთ ფოტო</label>
-                <div className="flex flex-col gap-2-4 items-center py-4-8 rounded-1-2 border-dashed border-0-1 border-grey bg-white04 relative">
-                  <img src="/images/folder-add.png" />
-                  <p>
-                    ჩააგდეთ ფაილი აქ ან{' '}
-                    <span className="underline font-fB">აირჩიეთ ფაილი</span>
-                  </p>
-                  <input
-                    name="file"
-                    type="file"
-                    className="absolute inset-0 opacity-0"
-                    onChange={fileUpdateHandler}
-                  />
-                </div>
+                {!inputValue.file ? (
+                  <div className="flex flex-col gap-2-4 items-center py-4-8 rounded-1-2 border-dashed border-0-1 border-grey bg-white04 relative">
+                    <img src="/images/folder-add.png" />
+                    <p>
+                      ჩააგდეთ ფაილი აქ ან{' '}
+                      <span className="underline font-fB">აირჩიეთ ფაილი</span>
+                    </p>
+                    <input
+                      name="file"
+                      type="file"
+                      className="absolute inset-0 opacity-0"
+                      onChange={fileUpdateHandler}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center p-1-6 rounded-1-2 bg-white01">
+                    <div className="flex items-center gap-1-2">
+                      <img src="/images/gallery.png" />
+                      <p>Blog</p>
+                    </div>
+                    <button type="button">
+                      <img src="/svg/X.svg" />
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2-4">
                 <div className="flex flex-col gap-0-8 w-full">

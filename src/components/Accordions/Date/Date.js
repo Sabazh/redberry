@@ -8,7 +8,7 @@ const Date = (props) => {
   return (
     <div className="flex flex-col gap-0-8 w-full">
       <label className="font-fN">გამოქვეყნების თარიღი *</label>
-      <DatePicker value={value} onChange={onChange} />
+      <DatePicker value={value} onChange={onChange} className={''}/>
     </div>
   )
 }

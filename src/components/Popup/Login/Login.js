@@ -2,14 +2,13 @@ import { useContext, useState } from 'react'
 import { AppContext } from '@/context/AppContext'
 import { fetchData } from '@/utils/fetchData'
 import Button from '@/components/Inputs/Button/Button'
+import { setCookie } from 'cookies-next'
 
 const Login = () => {
   const {
     loginHandler,
     isLoggedIn,
     isLoggedInHandler,
-    setTokenHandler,
-    token,
     setCategoriesHandler,
     setBlogsHandler,
   } = useContext(AppContext)
@@ -44,6 +43,7 @@ const Login = () => {
           accept: 'application/json',
         },
       })
+      setCookie('token', token)
       const handler = () =>
         Promise.all([
           fetchData('categories', {
@@ -68,7 +68,6 @@ const Login = () => {
       const [categories, blogs] = await handler()
       setCategoriesHandler(categories.data)
       setBlogsHandler(blogs.data)
-      setTokenHandler(token)
       isLoggedInHandler()
     } catch (e) {
       setError(JSON.parse(e.message))
